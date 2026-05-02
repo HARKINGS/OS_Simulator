@@ -24,16 +24,38 @@ namespace OS.Scheduling.Unity.Input
             _removeButton.onClick.AddListener(() => _owner.RemoveRow(this));
         }
 
-        public ProcessDto ToDto()
+        public bool TryGetDto(out ProcessDto dto, out string error)
         {
-            return new ProcessDto
+            dto = null;
+            error = "";
+
+            if (ArrivalTime < 0)
+            {
+                error = $"P{_pid}: Arrival Time phải >= 0";
+                return false;
+            }
+
+            if (BurstTime <= 0)
+            {
+                error = $"P{_pid}: Burst Time phải > 0";
+                return false;
+            }
+
+            if (Priority < 0)
+            {
+                error = $"P{_pid}: Priority phải >= 0";
+                return false;
+            }
+
+            dto = new ProcessDto
             {
                 Pid = _pid,
                 ArrivalTime = ArrivalTime,
                 BurstTime = BurstTime,
                 Priority = Priority
             };
-        } 
+            return true;
+        }
 
         public void SetPid(int pid)
         {
@@ -41,8 +63,11 @@ namespace OS.Scheduling.Unity.Input
             pidText.text = $"P{pid}";
         }
 
+        public string PID => $"P{_pid}";
         public int ArrivalTime => int.TryParse(_arrivalInput.text, out var value) ? value : 0;
         public int BurstTime => int.TryParse(_burstInput.text, out var value) ? value : 0;
         public int Priority => int.TryParse(_priorityInput.text, out var value) ? value : 0;
+
+        public object Data { get; internal set; }
     }
 }

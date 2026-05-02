@@ -1,6 +1,5 @@
 using OS.Scheduling.Unity.Reporting;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using OS.Scheduling.Services;
 
@@ -29,10 +28,22 @@ namespace OS.Scheduling.Unity.Managers
                 priorityMode, 
                 quantumTime);
 
+            _schedulingService = new SchedulingService(config.Scheduler);
             var processes = _schedulingService.Run(processDtos); // Run xong 1 lần, không step
 
-            _resultRenderer.RenderGantt(processes);
-            _resultRenderer.RenderProcessList(processes, config.ToString());
+            foreach (var process in processes)
+            {
+                Debug.Log($"Process {process.Data.Pid}: " +
+                    $"ArrivalTime={process.Data.ArrivalTime}, " +
+                    $"BurstTime={process.Data.BurstTime}, " +
+                    $"Priority={process.Data.Priority}, " +
+                    $"CompletionTime={process.CompletionTime}, " +
+                    $"TurnAroundTime={process.TurnaroundTime}, " +
+                    $"WaitingTime={process.WaitingTime}");
+            }
+
+            //_resultRenderer.RenderGantt(processes);
+            //_resultRenderer.RenderProcessList(processes, config.ToString());
         }
     }
 }
