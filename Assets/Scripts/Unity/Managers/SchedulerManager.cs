@@ -2,12 +2,14 @@ using OS.Scheduling.Unity.Reporting;
 using System.Collections.Generic;
 using UnityEngine;
 using OS.Scheduling.Services;
+using OS.Scheduling.Reporting;
 
 namespace OS.Scheduling.Unity.Managers
 {
     public class SchedulerManager : MonoBehaviour
     {
         [SerializeField] private UnityResultRenderer _resultRenderer;
+        [SerializeField] private ResultReporter _resultReporter;
 
         private SchedulerFactory _schedulerFactory;
         private SchedulingService _schedulingService;
@@ -15,17 +17,14 @@ namespace OS.Scheduling.Unity.Managers
         private void Awake()
         {
             _schedulerFactory = new SchedulerFactory();
+            _resultReporter = new ResultReporter();
         }
 
-        public void Run(
-            SchedulerType type, 
-            PriorityMode priorityMode, 
-            List<ProcessDto> processDtos,
-            int quantumTime = 2)
+        public SchedulingResult Run(SchedulerType type, PriorityMode mode, List<ProcessDto> processDtos, int quantumTime = 2)
         {
             var config = _schedulerFactory.CreateScheduler(
-                type, 
-                priorityMode, 
+                type,
+                mode,
                 quantumTime);
 
             _schedulingService = new SchedulingService(config.Scheduler);
@@ -42,8 +41,7 @@ namespace OS.Scheduling.Unity.Managers
                     $"WaitingTime={process.WaitingTime}");
             }
 
-            //_resultRenderer.RenderGantt(processes);
-            //_resultRenderer.RenderProcessList(processes, config.ToString());
+            return _resultReporter.Calculate(processes);
         }
     }
 }

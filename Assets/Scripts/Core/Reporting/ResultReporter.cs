@@ -1,19 +1,19 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace OS.Scheduling.Reporting
 {
     public class ResultReporter
     {
-        public Result Calculate(List<Process> processes)
+        public SchedulingResult Calculate(List<Process> processes)
         {
-            double avgTAT = processes.Average(p => p.TurnaroundTime);
-            double avgWT = processes.Average(p => p.WaitingTime);
+            double avgTAT = Math.Round(processes.Average(p => p.TurnaroundTime), 2);
+            double avgWT = Math.Round(processes.Average(p => p.WaitingTime), 2);
 
             var rows = processes
                 .OrderBy(p => p.Data.Pid)
-                .Select(p => new ProcessRow(
+                .Select(p => new ProcessResultRow(
                     p.Data.Pid,
                     p.Data.ArrivalTime,
                     p.Data.BurstTime,
@@ -24,7 +24,7 @@ namespace OS.Scheduling.Reporting
                 ))
                 .ToList();
 
-            return new Result(
+            return new SchedulingResult(
                 rows: rows,
                 avgTAT: avgTAT,
                 avgWT: avgWT
@@ -32,7 +32,7 @@ namespace OS.Scheduling.Reporting
         }
     }
 
-    public class ProcessRow
+    public class ProcessResultRow
     {
         public int Pid { get; }
         public int ArrivalTime { get; }
@@ -42,7 +42,7 @@ namespace OS.Scheduling.Reporting
         public int TurnaroundTime { get; }
         public int WaitingTime { get; }
 
-        public ProcessRow(int pid, int arrivalTime, int burstTime, int priority, int completionTime, int turnaroundTime, int waitingTime)
+        public ProcessResultRow(int pid, int arrivalTime, int burstTime, int priority, int completionTime, int turnaroundTime, int waitingTime)
         {
             Pid = pid;
             ArrivalTime = arrivalTime;
@@ -54,13 +54,13 @@ namespace OS.Scheduling.Reporting
         }
     }
 
-    public class Result
+    public class SchedulingResult
     {
-        public List<ProcessRow> Rows { get; }
+        public List<ProcessResultRow> Rows { get; }
         public double AvgTAT { get; }
         public double AvgWT { get; }
 
-        public Result(List<ProcessRow> rows, double avgTAT, double avgWT)
+        public SchedulingResult(List<ProcessResultRow> rows, double avgTAT, double avgWT)
         {
             Rows = rows;
             AvgTAT = avgTAT;

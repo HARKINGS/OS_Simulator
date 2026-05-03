@@ -1,11 +1,17 @@
+using OS.Scheduling.Reporting;
 using OS.Scheduling.Unity.Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
-{ 
-    [SerializeField] private ProcessTableInputPanel processTablePanel;
+{
+    [SerializeField] private Canvas inputScene;
+    [SerializeField] private Canvas outputScene;    
+
+    [SerializeField] private ProcessTableInputPanel processTableInputPanel;
+    [SerializeField] private ProcessTableOutputPanel processTableOutputPanel;
+
     [SerializeField] private SchedulerManager schedulerManager;
 
     [SerializeField] private GameObject quantumPanel;
@@ -21,7 +27,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button addProcessButton;
     [SerializeField] private Button resetButton;
     [SerializeField] private Button runButton;
-    
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button exitButton;
+
     public int GetQuantumTime()
     {
         if(int.TryParse(quantumInput.text, out int quantum) && quantum > 0)
@@ -57,6 +65,9 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        inputScene.gameObject.SetActive(true);
+        outputScene.gameObject.SetActive(false);
+
         quantumPanel.SetActive(false);
         priorityPanel.SetActive(false);
         preemptivePanel.SetActive(false);
@@ -65,6 +76,8 @@ public class UIManager : MonoBehaviour
         addProcessButton.onClick.AddListener(OnAddProcessClicked);
         resetButton.onClick.AddListener(OnResetClicked);
         runButton.onClick.AddListener(OnRunClicked);
+        backButton.onClick.AddListener(OnBackButtonClicked);
+        exitButton.onClick.AddListener(OnExitButtonClicked);
     }
 
     private void OnDestroy()
@@ -75,20 +88,20 @@ public class UIManager : MonoBehaviour
     public void OnAddProcessClicked()
     {
         Debug.Log("Add Process button clicked");
-        processTablePanel.AddProcess();
+        processTableInputPanel.AddProcess();
     }    
     
     public void OnResetClicked()
     {
         Debug.Log("Reset button clicked");
-        processTablePanel.ClearRows();
+        processTableInputPanel.ClearRows();
     }    
 
     public void OnRunClicked()
     {
         Debug.Log("Run button clicked");
 
-        if (!processTablePanel.TryCollectDtos(out var dtos, out string message))
+        if (!processTableInputPanel.TryCollectDtos(out var dtos, out string message))
         {
             inputNotificationPopup.GetComponent<InputNotificationPopup>().ShowPopup(message);
             return;
@@ -101,10 +114,33 @@ public class UIManager : MonoBehaviour
         }
 
         if (algorithmDropdown.value == 3 && GetQuantumTime() <= 0)
+        {     
             inputNotificationPopup.GetComponent<InputNotificationPopup>().ShowPopup("Quantumtime phải > 0!");
+            return;
+        }
 
-        schedulerManager.Run(type, priorityMode, dtos, quantum);
-        //SwitchToResultScreen();
+        SchedulingResult result = schedulerManager.Run(type, priorityMode, dtos, quantum);
+        ShowOutputScene(result);
+    }
+
+    public void OnBackButtonClicked()
+    {
+        Debug.Log("Back button clicked");
+        outputScene.gameObject.SetActive(false);
+        inputScene.gameObject.SetActive(true);
+    }
+
+    public void OnExitButtonClicked()
+    {
+        Debug.Log("Exit button clicked");
+        Application.Quit();
+    }
+
+    private void ShowOutputScene(SchedulingResult result)
+    {
+        inputScene.gameObject.SetActive(false);
+        outputScene.gameObject.SetActive(true);
+        processTableOutputPanel.RenderResult(result);
     }
 
     private void OnAlgorithmChanged(int index)
