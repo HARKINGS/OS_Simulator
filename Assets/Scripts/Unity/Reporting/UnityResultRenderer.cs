@@ -7,18 +7,11 @@ namespace OS.Scheduling.Unity.Reporting
 {
     public class UnityResultRenderer : MonoBehaviour, IResultRenderer
     {
-        [SerializeField] private ProcessTableRenderer _processTable;
         [SerializeField] private GanttChartRenderer _ganttChart;
-        [SerializeField] private MetricPanel _metricPanel;
 
-        public void RenderGantt(List<Process> processes)
+        public void RenderGantt(SchedulingResult result)
         {
-            _ganttChart.Render(processes);
-        }
-
-        public void RenderProcessList(List<Process> processes, string algoName)
-        {
-            _processTable.Render(processes);
+            _ganttChart.Render(result);
         }
     }
 }

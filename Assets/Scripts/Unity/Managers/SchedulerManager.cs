@@ -22,15 +22,13 @@ namespace OS.Scheduling.Unity.Managers
 
         public SchedulingResult Run(SchedulerType type, PriorityMode mode, List<ProcessDto> processDtos, int quantumTime = 2)
         {
-            var config = _schedulerFactory.CreateScheduler(
-                type,
-                mode,
-                quantumTime);
+            var config = _schedulerFactory.CreateScheduler(type, mode, quantumTime);
 
             _schedulingService = new SchedulingService(config.Scheduler);
-            var processes = _schedulingService.Run(processDtos); // Run xong 1 lần, không step
+            var trace = _schedulingService.Run(processDtos); // Run xong 1 lần, không step
+            var result = _resultReporter.Calculate(trace);
 
-            foreach (var process in processes)
+            foreach (var process in trace.Processes)
             {
                 Debug.Log($"Process {process.Data.Pid}: " +
                     $"ArrivalTime={process.Data.ArrivalTime}, " +
@@ -41,7 +39,9 @@ namespace OS.Scheduling.Unity.Managers
                     $"WaitingTime={process.WaitingTime}");
             }
 
-            return _resultReporter.Calculate(processes);
+            _resultRenderer.RenderGantt(result);
+
+            return result;
         }
     }
 }

@@ -252,6 +252,7 @@ MonoBehaviour:
   arrivalTimeOutput: {fileID: 3124465752441735438}
   burstTimeOutput: {fileID: 4316097035909415960}
   priorityOutput: {fileID: 8443220975599921459}
+  completionTimeOutput: {fileID: 5528489531952029103}
   turnaroundTimeOutput: {fileID: 155231914137696366}
   waitingTimeOutput: {fileID: 4872970390769080785}
 --- !u!1 &996214226962977860

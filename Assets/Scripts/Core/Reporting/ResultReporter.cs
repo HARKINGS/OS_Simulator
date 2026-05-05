@@ -6,8 +6,10 @@ namespace OS.Scheduling.Reporting
 {
     public class ResultReporter
     {
-        public SchedulingResult Calculate(List<Process> processes)
+        public SchedulingResult Calculate(SchedulingTrace trace)
         {
+            var processes = trace.Processes;
+
             double avgTAT = Math.Round(processes.Average(p => p.TurnaroundTime), 2);
             double avgWT = Math.Round(processes.Average(p => p.WaitingTime), 2);
 
@@ -26,6 +28,7 @@ namespace OS.Scheduling.Reporting
 
             return new SchedulingResult(
                 rows: rows,
+                segments: trace.Segments,
                 avgTAT: avgTAT,
                 avgWT: avgWT
             );
@@ -51,20 +54,6 @@ namespace OS.Scheduling.Reporting
             CompletionTime = completionTime;
             TurnaroundTime = turnaroundTime;
             WaitingTime = waitingTime;
-        }
-    }
-
-    public class SchedulingResult
-    {
-        public List<ProcessResultRow> Rows { get; }
-        public double AvgTAT { get; }
-        public double AvgWT { get; }
-
-        public SchedulingResult(List<ProcessResultRow> rows, double avgTAT, double avgWT)
-        {
-            Rows = rows;
-            AvgTAT = avgTAT;
-            AvgWT = avgWT;
         }
     }
 }

@@ -10,18 +10,18 @@ namespace OS.Scheduling.Services
         private readonly IScheduler _scheduler;
         public SchedulingService(IScheduler scheduler) => _scheduler = scheduler;
 
-        public List<Process> Run(List<ProcessDto> dtos)
+        public SchedulingTrace Run(List<ProcessDto> dtos)
         {
             if (dtos == null || !dtos.Any())
-                return new List<Process>();
+                return new SchedulingTrace(new List<Process>(), new List<ExecutionSegment>());
 
             var processes = dtos
                 .Select(d => new Process(d))
                 .OrderBy(p => p.Data.ArrivalTime)
                 .ToList();       
 
-            _scheduler.Schedule(processes);
-            return processes;
+            var answer = _scheduler.Schedule(processes);
+            return answer;
         }
     }
 }

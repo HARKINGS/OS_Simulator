@@ -5,5 +5,5 @@ using System.Linq;
 
 public interface IScheduler
 {
-    void Schedule(List<Process> processes);
+    SchedulingTrace Schedule(List<Process> processes);
 }

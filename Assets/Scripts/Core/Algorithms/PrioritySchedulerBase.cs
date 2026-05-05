@@ -20,7 +20,7 @@ public abstract class PrioritySchedulerBase : IScheduler
         _comparator = comparator;
     }
 
-    public abstract void Schedule(List<Process> processes);
+    public abstract SchedulingTrace Schedule(List<Process> processes);
 
     protected Process GetHighestPriority(List<Process> readyQueue)
     {

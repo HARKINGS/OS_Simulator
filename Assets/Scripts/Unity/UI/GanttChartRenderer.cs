@@ -1,47 +1,71 @@
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace OS.Scheduling.UI
 {
     public class GanttChartRenderer : MonoBehaviour
     {
-        [SerializeField] private RectTransform _ganttArea;
-        [SerializeField] private GameObject _ganttBarPrefab; /// Image + Text
+        [SerializeField] private RectTransform content;
+        [SerializeField] private GanttBar barPrefab;
+        //[SerializeField] private TMP_Text titleText;
+        [SerializeField] private float pixelsPerTimeUnit = 60f;
+        [SerializeField] private float barHeight = 48f;
 
-        public void Render(List<Process> processes)
+        private readonly List<GanttBar> bars = new();
+
+        public void Render(SchedulingResult result)
         {
-            // Clear old bars
-            foreach (Transform child in _ganttArea)
+            Clear();
+
+            var colorMap = new Dictionary<int, Color>();
+            int index = 0;
+
+            foreach (var segment in result.Segments)
             {
-                Destroy(child.gameObject);
+                var bar = Instantiate(barPrefab, content);
+                bars.Add(bar);
+
+                if (!colorMap.TryGetValue(segment.Pid, out var color))
+                {
+                    color = GenerateColor(index++);
+                    colorMap[segment.Pid] = color;
+                }
+
+                bar.Bind(segment, color);
+
+                var rt = bar.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0, 1);
+                rt.anchorMax = new Vector2(0, 1);
+                rt.pivot = new Vector2(0, 1);
+
+                float x = segment.StartTime * pixelsPerTimeUnit;
+                float w = segment.Duration * pixelsPerTimeUnit;
+                float y = 0f;
+
+                rt.anchoredPosition = new Vector2(x, y);
+                rt.sizeDelta = new Vector2(w, barHeight);
             }
 
-            int time = 0;
-            var sorted = processes.OrderBy(p => p.CompletionTime).ToList();
+            var rect = content as RectTransform;
+            if (rect != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+        }
 
-            // Create new bars
-            foreach (Process process in sorted)
-            {
-                int start = time;
-                int end = process.CompletionTime;
-                int duration = end - start;
+        private void Clear()
+        {
+            for (int i = content.childCount - 1; i >= 0; i--)
+                Destroy(content.GetChild(i).gameObject);
 
-                var bar = Instantiate(_ganttBarPrefab, _ganttArea);
-                var rect = bar.GetComponent<RectTransform>();
+            bars.Clear();
+        }
 
-                // Position & width theo duration (ví dụ 1 unit = 20px)
-                float scale = 20f;
-                rect.anchoredPosition = new Vector2(start * scale, 0);
-                rect.sizeDelta = new Vector2(duration * scale, rect.sizeDelta.y);
-
-                // Gán text PID
-                var pidText = bar.GetComponentInChildren<Text>();
-                pidText.text = $"P{process.Data.Pid}";
-
-                time = end; // Cập nhật thời gian cho process tiếp theo
-            }
+        private Color GenerateColor(int index)
+        {
+            float hue = (index * 0.17f) % 1f;
+            return Color.HSVToRGB(hue, 0.65f, 0.9f);
         }
     }
 }

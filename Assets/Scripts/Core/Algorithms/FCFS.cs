@@ -4,14 +4,22 @@ using System;
 
 public class FCFS : IScheduler
 {
-    public void Schedule(List<Process> processes)
+    public SchedulingTrace Schedule(List<Process> processes)
     {
+        var segments = new List<ExecutionSegment>();
         int time = 0;
+
         foreach (var p in processes)
         {
-            time = Math.Max(time, p.Data.ArrivalTime);
-            p.CompletionTime = time + p.Data.BurstTime;
-            time = p.CompletionTime;
+            int start = Math.Max(time, p.Data.ArrivalTime);
+            int end = start + p.Data.BurstTime;
+
+            p.CompletionTime = end;
+            segments.Add(new ExecutionSegment(p.Data.Pid, start, end));
+
+            time = end;
         }
+
+        return new SchedulingTrace(processes, segments);
     }
 }

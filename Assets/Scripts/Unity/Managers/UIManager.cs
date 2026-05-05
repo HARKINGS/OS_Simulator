@@ -120,7 +120,7 @@ public class UIManager : MonoBehaviour
         }
 
         SchedulingResult result = schedulerManager.Run(type, priorityMode, dtos, quantum);
-        ShowOutputScene(result);
+        ShowResult(result);
     }
 
     public void OnBackButtonClicked()
@@ -136,7 +136,7 @@ public class UIManager : MonoBehaviour
         Application.Quit();
     }
 
-    private void ShowOutputScene(SchedulingResult result)
+    private void ShowResult(SchedulingResult result)
     {
         inputScene.gameObject.SetActive(false);
         outputScene.gameObject.SetActive(true);

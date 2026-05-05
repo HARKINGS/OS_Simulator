@@ -9,8 +9,9 @@ public class RoundRobin : IScheduler
 
     public RoundRobin(int quantumTime) => this.quantumTime = quantumTime;
 
-    public void Schedule(List<Process> processes)
+    public SchedulingTrace Schedule(List<Process> processes)
     {
+        var segments = new List<ExecutionSegment>();
         var queue = new Queue<Process>();
         int time = 0, idx = 0;
         while (idx < processes.Count || queue.Count > 0)
@@ -25,6 +26,7 @@ public class RoundRobin : IScheduler
             var p = queue.Dequeue(); // Lấy ra từ đầu
 
             int exec = Math.Min(quantumTime, p.RemainingTime);
+            int start = time;
             time += exec;
             p.RemainingTime -= exec;
 
@@ -34,7 +36,10 @@ public class RoundRobin : IScheduler
 
             if (p.RemainingTime > 0) queue.Enqueue(p);
             else p.CompletionTime = time;
+            segments.Add(new ExecutionSegment(p.Data.Pid, start, time));
         }
+
+        return new SchedulingTrace(processes, segments);
     }
 }
 
